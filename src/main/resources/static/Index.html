@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌱 Gestión de Huerta</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .tab:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .tab.active {
+      background: white;
+      color: #667eea;
+      font-weight: bold;
+    }
+
+    .section {
+      display: none;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .section.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      padding: 12px 30px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      margin-left: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-edit {
+      background: #28a745;
+      padding: 6px 12px;
+      font-size: 14px;
+      margin-right: 5px;
+    }
+
+    .btn-edit:hover {
+      background: #218838;
+    }
+
+    .btn-delete {
+      background: #dc3545;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+
+    .btn-delete:hover {
+      background: #c82333;
+    }
+
+    .btn-cancel {
+      background: #6c757d;
+    }
+
+    .btn-cancel:hover {
+      background: #5a6268;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background: #f8f9fa;
+      color: #333;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #f8f9fa;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #28a745;
+      color: white;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .alert {
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert.show {
+      display: block;
+      animation: slideDown 0.3s;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-title {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .editing {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🌱 Sistema de Gestión de Huerta</h1>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showSection('plantas')">🌿 Plantas</button>
+    <button class="tab" onclick="showSection('clientes')">👤 Clientes</button>
+    <button class="tab" onclick="showSection('pedidos')">📦 Pedidos</button>
+  </div>
+
+  <!-- PLANTAS -->
+  <div id="plantas" class="section active">
+    <div id="alert-plantas" class="alert"></div>
+
+    <h2 class="form-title" id="titulo-form-planta">Agregar Planta</h2>
+    <div id="editing-planta" class="editing" style="display:none;">
+      Editando planta. <button class="btn-cancel" onclick="cancelarEdicionPlanta()">Cancelar</button>
+    </div>
+    <form id="form-planta" onsubmit="guardarPlanta(event)">
+      <input type="hidden" id="planta-id">
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input type="text" id="planta-nombre" required>
+      </div>
+      <div class="form-group">
+        <label>Precio:</label>
+        <input type="number" id="planta-precio" step="0.01" min="1" required>
+      </div>
+      <button type="submit" id="btn-submit-planta">Agregar Planta</button>
+      <button type="button" class="btn-secondary" onclick="cargarPlantas()">Actualizar Lista</button>
+    </form>
+
+    <h2 style="margin-top: 30px;">Lista de Plantas</h2>
+    <div id="lista-plantas"></div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div id="clientes" class="section">
+    <div id="alert-clientes" class="alert"></div>
+
+    <h2 class="form-title" id="titulo-form-cliente">Agregar Cliente</h2>
+    <div id="editing-cliente" class="editing" style="display:none;">
+      Editando cliente. <button class="btn-cancel" onclick="cancelarEdicionCliente()">Cancelar</button>
+    </div>
+    <form id="form-cliente" onsubmit="guardarCliente(event)">
+      <input type="hidden" id="cliente-id">
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input type="text" id="cliente-nombre" required>
+      </div>
+      <div class="form-group">
+        <label>Apellido:</label>
+        <input type="text" id="cliente-apellido" required>
+      </div>
+      <div class="form-group">
+        <label>Lugar de Residencia:</label>
+        <input type="text" id="cliente-lugar" required>
+      </div>
+      <button type="submit" id="btn-submit-cliente">Agregar Cliente</button>
+      <button type="button" class="btn-secondary" onclick="cargarClientes()">Actualizar Lista</button>
+    </form>
+
+    <h2 style="margin-top: 30px;">Lista de Clientes</h2>
+    <div id="lista-clientes"></div>
+  </div>
+
+  <!-- PEDIDOS -->
+  <div id="pedidos" class="section">
+    <div id="alert-pedidos" class="alert"></div>
+
+    <h2 class="form-title" id="titulo-form-pedido">Crear Pedido</h2>
+    <div id="editing-pedido" class="editing" style="display:none;">
+      Editando pedido. <button class="btn-cancel" onclick="cancelarEdicionPedido()">Cancelar</button>
+    </div>
+    <form id="form-pedido" onsubmit="guardarPedido(event)">
+      <input type="hidden" id="pedido-id">
+      <div class="form-group">
+        <label>Cliente:</label>
+        <select id="pedido-cliente" required>
+          <option value="">Selecciona un cliente</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Planta:</label>
+        <select id="pedido-planta" required>
+          <option value="">Selecciona una planta</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cantidad:</label>
+        <input type="number" id="pedido-cantidad" min="1" required>
+      </div>
+      <div class="form-group">
+        <label>Fecha:</label>
+        <input type="date" id="pedido-fecha" required>
+      </div>
+      <button type="submit" id="btn-submit-pedido">Crear Pedido</button>
+      <button type="button" class="btn-secondary" onclick="cargarPedidos()">Actualizar Lista</button>
+    </form>
+
+    <h2 style="margin-top: 30px;">Lista de Pedidos</h2>
+    <div id="lista-pedidos"></div>
+  </div>
+</div>
+
+<script>
+  const API_URL = 'http://localhost:8080';
+  let editandoPlanta = false;
+  let editandoCliente = false;
+  let editandoPedido = false;
+
+  // Cambiar de sección
+  function showSection(section) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+    document.getElementById(section).classList.add('active');
+    event.target.classList.add('active');
+
+    // Cargar datos de la sección
+    if (section === 'plantas') cargarPlantas();
+    if (section === 'clientes') cargarClientes();
+    if (section === 'pedidos') {
+      cargarPedidos();
+      cargarSelectores();
+    }
+  }
+
+  // Mostrar alerta
+  function mostrarAlerta(tipo, mensaje, seccion) {
+    const alert = document.getElementById(`alert-${seccion}`);
+    alert.className = `alert ${tipo} show`;
+    alert.textContent = mensaje;
+    setTimeout(() => alert.classList.remove('show'), 3000);
+  }
+
+  // === PLANTAS ===
+  async function cargarPlantas() {
+    try {
+      const response = await fetch(`${API_URL}/plantas`);
+      const plantas = await response.json();
+
+      const html = plantas.length ? `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${plantas.map(p => `
+              <tr>
+                <td>${p.id}</td>
+                <td>${p.nombre}</td>
+                <td>$${p.precio.toFixed(2)}</td>
+                <td>
+                  <button class="btn-edit" onclick="editarPlanta(${p.id}, '${p.nombre}', ${p.precio})">✏️ Editar</button>
+                  <button class="btn-delete" onclick="eliminarPlanta(${p.id})">🗑️ Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      ` : '<div class="empty-state">No hay plantas registradas</div>';
+
+      document.getElementById('lista-plantas').innerHTML = html;
+    } catch (error) {
+      mostrarAlerta('error', 'Error al cargar plantas', 'plantas');
+    }
+  }
+
+  function editarPlanta(id, nombre, precio) {
+    editandoPlanta = true;
+    document.getElementById('planta-id').value = id;
+    document.getElementById('planta-nombre').value = nombre;
+    document.getElementById('planta-precio').value = precio;
+    document.getElementById('titulo-form-planta').textContent = 'Editar Planta';
+    document.getElementById('btn-submit-planta').textContent = 'Actualizar Planta';
+    document.getElementById('editing-planta').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function cancelarEdicionPlanta() {
+    editandoPlanta = false;
+    document.getElementById('form-planta').reset();
+    document.getElementById('planta-id').value = '';
+    document.getElementById('titulo-form-planta').textContent = 'Agregar Planta';
+    document.getElementById('btn-submit-planta').textContent = 'Agregar Planta';
+    document.getElementById('editing-planta').style.display = 'none';
+  }
+
+  async function guardarPlanta(e) {
+    e.preventDefault();
+    const planta = {
+      nombre: document.getElementById('planta-nombre').value,
+      precio: parseFloat(document.getElementById('planta-precio').value)
+    };
+
+    try {
+      const id = document.getElementById('planta-id').value;
+      const url = editandoPlanta ? `${API_URL}/plantas/${id}` : `${API_URL}/plantas`;
+      const method = editandoPlanta ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(planta)
+      });
+
+      if (response.ok) {
+        mostrarAlerta('success', editandoPlanta ? 'Planta actualizada exitosamente' : 'Planta creada exitosamente', 'plantas');
+        cancelarEdicionPlanta();
+        cargarPlantas();
+      }
+    } catch (error) {
+      mostrarAlerta('error', 'Error al guardar planta', 'plantas');
+    }
+  }
+
+  async function eliminarPlanta(id) {
+    if (!confirm('¿Estás seguro de eliminar esta planta?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/plantas/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        mostrarAlerta('success', 'Planta eliminada exitosamente', 'plantas');
+        cargarPlantas();
+      }
+    } catch (error) {
+      mostrarAlerta('error', 'Error al eliminar planta. Puede tener pedidos asociados.', 'plantas');
+    }
+  }
+
+  // === CLIENTES ===
+  async function cargarClientes() {
+    try {
+      const response = await fetch(`${API_URL}/clientes`);
+      const clientes = await response.json();
+
+      const html = clientes.length ? `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Residencia</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${clientes.map(c => `
+              <tr>
+                <td>${c.id}</td>
+                <td>${c.nombre}</td>
+                <td>${c.apellido}</td>
+                <td>${c.lugarResidencia}</td>
+                <td>
+                  <button class="btn-edit" onclick="editarCliente(${c.id}, '${c.nombre}', '${c.apellido}', '${c.lugarResidencia}')">✏️ Editar</button>
+                  <button class="btn-delete" onclick="eliminarCliente(${c.id})">🗑️ Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      ` : '<div class="empty-state">No hay clientes registrados</div>';
+
+      document.getElementById('lista-clientes').innerHTML = html;
+    } catch (error) {
+      mostrarAlerta('error', 'Error al cargar clientes', 'clientes');
+    }
+  }
+
+  function editarCliente(id, nombre, apellido, lugar) {
+    editandoCliente = true;
+    document.getElementById('cliente-id').value = id;
+    document.getElementById('cliente-nombre').value = nombre;
+    document.getElementById('cliente-apellido').value = apellido;
+    document.getElementById('cliente-lugar').value = lugar;
+    document.getElementById('titulo-form-cliente').textContent = 'Editar Cliente';
+    document.getElementById('btn-submit-cliente').textContent = 'Actualizar Cliente';
+    document.getElementById('editing-cliente').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function cancelarEdicionCliente() {
+    editandoCliente = false;
+    document.getElementById('form-cliente').reset();
+    document.getElementById('cliente-id').value = '';
+    document.getElementById('titulo-form-cliente').textContent = 'Agregar Cliente';
+    document.getElementById('btn-submit-cliente').textContent = 'Agregar Cliente';
+    document.getElementById('editing-cliente').style.display = 'none';
+  }
+
+  async function guardarCliente(e) {
+    e.preventDefault();
+    const cliente = {
+      nombre: document.getElementById('cliente-nombre').value,
+      apellido: document.getElementById('cliente-apellido').value,
+      lugarResidencia: document.getElementById('cliente-lugar').value
+    };
+
+    try {
+      const id = document.getElementById('cliente-id').value;
+      const url = editandoCliente ? `${API_URL}/clientes/${id}` : `${API_URL}/clientes`;
+      const method = editandoCliente ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cliente)
+      });
+
+      if (response.ok) {
+        mostrarAlerta('success', editandoCliente ? 'Cliente actualizado exitosamente' : 'Cliente creado exitosamente', 'clientes');
+        cancelarEdicionCliente();
+        cargarClientes();
+      }
+    } catch (error) {
+      mostrarAlerta('error', 'Error al guardar cliente', 'clientes');
+    }
+  }
+
+  async function eliminarCliente(id) {
+    if (!confirm('¿Estás seguro de eliminar este cliente?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/clientes/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        mostrarAlerta('success', 'Cliente eliminado exitosamente', 'clientes');
+        cargarClientes();
+      }
+    } catch (error) {
+      mostrarAlerta('error', 'Error al eliminar cliente. Puede tener pedidos asociados.', 'clientes');
+    }
+  }
+
+  // === PEDIDOS ===
+  async function cargarSelectores() {
+    try {
+      const [plantas, clientes] = await Promise.all([
+        fetch(`${API_URL}/plantas`).then(r => r.json()),
+        fetch(`${API_URL}/clientes`).then(r => r.json())
+      ]);
+
+      document.getElementById('pedido-planta').innerHTML =
+        '<option value="">Selecciona una planta</option>' +
+        plantas.map(p => `<option value="${p.id}">${p.nombre} - $${p.precio}</option>`).join('');
+
+      document.getElementById('pedido-cliente').innerHTML =
+        '<option value="">Selecciona un cliente</option>' +
+        clientes.map(c => `<option value="${c.id}">${c.nombre} ${c.apellido}</option>`).join('');
+    } catch (error) {
+      console.error('Error al cargar selectores', error);
+    }
+  }
+
+  async function cargarPedidos() {
+    try {
+      const response = await fetch(`${API_URL}/pedidos`);
+      const pedidos = await response.json();
+
+      const html = pedidos.length ? `
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Planta</th>
+              <th>Cantidad</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pedidos.map(p => `
+              <tr>
+                <td>${p.id}</td>
+                <td>${p.cliente.nombre} ${p.cliente.apellido}</td>
+                <td>${p.planta.nombre}</td>
+                <td><span class="badge">${p.cantidad}</span></td>
+                <td>${p.fecha}</td>
+                <td>
+                  <button class="btn-edit" onclick='editarPedido(${JSON.stringify(p)})'>✏️ Editar</button>
+                  <button class="btn-delete" onclick="eliminarPedido(${p.id})">🗑️ Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      ` : '<div class="empty-state">No hay pedidos registrados</div>';
+
+      document.getElementById('lista-pedidos').innerHTML = html;
+    } catch (error) {
+      mostrarAlerta('error', 'Error al cargar pedidos', 'pedidos');
+    }
+  }
+
+  function editarPedido(pedido) {
+    editandoPedido = true;
+    document.getElementById('pedido-id').value = pedido.id;
+    document.getElementById('pedido-cliente').value = pedido.cliente.id;
+    document.getElementById('pedido-planta').value = pedido.planta.id;
+    document.getElementById('pedido-cantidad').value = pedido.cantidad;
+    document.getElementById('pedido-fecha').value = pedido.fecha;
+    document.getElementById('titulo-form-pedido').textContent = 'Editar Pedido';
+    document.getElementById('btn-submit-pedido').textContent = 'Actualizar Pedido';
+    document.getElementById('editing-pedido').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function cancelarEdicionPedido() {
+    editandoPedido = false;
+    document.getElementById('form-pedido').reset();
+    document.getElementById('pedido-id').value = '';
+    document.getElementById('titulo-form-pedido').textContent = 'Crear Pedido';
+    document.getElementById('btn-submit-pedido').textContent = 'Crear Pedido';
+    document.getElementById('editing-pedido').style.display = 'none';
+  }
+
+  async function guardarPedido(e) {
+    e.preventDefault();
+    const pedido = {
+      cliente: { id: parseInt(document.getElementById('pedido-cliente').value) },
+      planta: { id: parseInt(document.getElementById('pedido-planta').value) },
+      cantidad: parseInt(document.getElementById('pedido-cantidad').value),
+      fecha: document.getElementById('pedido-fecha').value
+    };
+
+    try {
+      const id = document.getElementById('pedido-id').value;
+      const url = editandoPedido ? `${API_URL}/pedidos/${id}` : `${API_URL}/pedidos`;
+      const method = editandoPedido ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pedido)
+      });
+
+      if (response.ok) {
+        mostrarAlerta('success', editandoPedido ? 'Pedido actualizado exitosamente' : 'Pedido creado exitosamente', 'pedidos');
+        cancelarEdicionPedido();
+        cargarPedidos();
+      }
+    } catch (error) {
+      mostrarAlerta('error', 'Error al guardar pedido', 'pedidos');
+    }
+  }
+
+  async function eliminarPedido(id) {
+    if (!confirm('¿Estás seguro de eliminar este pedido?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/pedidos/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        mostrarAlerta('success', 'Pedido eliminado exitosamente', 'pedidos');
+        cargarPedidos();
+      }
+    } catch (error) {
+      mostrarAlerta('error', 'Error al eliminar pedido', 'pedidos');
+    }
+  }
+
+  // Cargar datos iniciales
+  cargarPlantas();
+</script>
+</body>
+</html>
+
+
+
